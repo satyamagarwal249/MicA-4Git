@@ -2,7 +2,7 @@
 %% Radon Transform
 theta = 0:3:177;
 img = mat2gray(imread('../../data/SheppLogan256.png'));
-[R, t] = radon(img, theta);		% # rows in R = 367
+[R, t] = radon(img, theta);     % # rows in R = 367
 w_max = floor((size(R,1) - 1)/2);
 
 figure;
@@ -77,7 +77,30 @@ title('Cosine Filtered Back Projection (L=w_{max}/2)');
 % saveas(gcf, 'a9. Cosine Filtered Back Projection (0.5w_max).jpg');
 pause(1);
 
-% The Unfiltered Back Projection is blurred out (as expected).
+%{
+-We observed that unfiltered back-projected image was highly blur. This
+was due to two reasons- 1)Due to discretisation of radon 2)Due to high
+overlapping of fourier of Radon projections around low frequency region(center), causing
+reduction in edges(high frequency).
+-So we need to to use Filters to lessen weigtage of low frequency region and
+increase  weightage of high frequency regions.
+Therefore, all of the filtered backprojected images are SHARP.
+ 
+-But there are also sharp artifacts. This is because The
+noise/discontinuity etc. also require high frequency, which also will get
+amplified, if not removed. This noise/discontinuity occur due to
+discretization of radon tranform. So, In all the filters by removing very
+high frequency content (E.g. greater than W_max/2), the image gets smoother.
+
+Also in the remaining 0 to w_max/2 frequency region, the higher frequency
+may be due to both edges(which are generally very less) and discontinuity(error) arised out of
+discretization of radon, which will constitute major part. So, if we amplify
+only MODERATELY HIGH frequecy content, more smooth image are obtained as in
+shepp-logan filter. 
+
+-The Cosine filter gives the best results because
+it also dampen the high frequency around L (w_max/2).
+%}
 
 %% Q.1 (b)
 %% Gaussian blurred images
@@ -141,6 +164,13 @@ title('Ram-Lak Filtered Back Projection, R_5');
 pause(1);
 disp(['RRMSE(S5, R5) = ', num2str(RRMSE)]);
 
+%{
+The RRMSE was highest for S0 and minimum for S5.
+Because when we use gauss filter then it smoothens the image and the high
+frequency content (edges) get reduced. And as the image smoothness increases the
+discontinuity decrease and So the error in backprojection caused due to discretization of radon
+will be lesser.
+%}
 
 %% Q.1 (c)
 %% RRMSE v/s frequency plot
@@ -180,6 +210,25 @@ title('RRMSE v/s Threshold Frequency');
 % saveas(gcf, 'c1. RRMSE_vs_L.jpg');
 pause(1);
 
+%{  
+-We observe that the RMSE first decreases as we increase the L, and then
+after reaching a minima, it starts increasing.
+-Because, the higher frequencies are basically due to noise ( Due to discontinuity
+and discretization), so after certain threshold, more we include the high frequency content, it amplify the error.
+-Also, if very less frequencies are considered, then we are discarding most data
+and so, the RMSE will be very high near origin. 
+- At certain threshold frequency the RMSE is minimum, which signifies, it
+is the max original frequency present in image and all frequency after it
+are result of noise/discontinuity.
+
+- That threshold frequency is minimum for S5, because on more smoothing, the
+more of high frequecies get dampen. 
+-Also, We observe that for more smoothened image(like S1, S5), RMSE curve
+is more flat after threshold frequency. It signifies, on smoothing
+the Edges/ discontinuity etc. get reduced and the high frequency content
+also vanishes. So,at higher L, RMSE curve Will not have any changes,
+because the higher frequecies are negligible.
+%}
 
 %% Filter  functions
 function filtR = myFilter(R, filter, L)
