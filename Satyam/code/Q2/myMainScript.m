@@ -191,7 +191,6 @@ end
 % disp(['minRRMSE = ', num2str(minRRMSE)]);
 % disp(['optLambda = ', num2str(optLambda)]);
 
-minR = min(col_
 
 %% Filter  functions
 function filtR = myFilter(R, filter, L)
